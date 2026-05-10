@@ -5,5 +5,5 @@
 class KnightBuilder : public ChessPieceBuilder
 {
 public:
-    std::unique_ptr<ChessPiece> create() override;
+    std::unique_ptr<ChessPiece> create(ChessPieceColor color) override;
 };

@@ -17,7 +17,7 @@ namespace test
         bool testPassed = true;
         builder = std::make_unique<PawnBuilder>();
 
-        const auto pawn = builder->create();
+        const auto pawn = builder->create(ChessPieceColor::White);
 
         if (pawn->getName() != ChessPieceName::Pawn)
         {
@@ -51,7 +51,7 @@ namespace test
         bool testPassed = true;
         builder = std::make_unique<KnightBuilder>();
 
-        const auto knight = builder->create();
+        const auto knight = builder->create(ChessPieceColor::White);
 
         if (knight->getName() != ChessPieceName::Knight)
         {
@@ -85,7 +85,7 @@ namespace test
         bool testPassed = true;
         builder = std::make_unique<BishopBuilder>();
 
-        const auto bishop = builder->create();
+        const auto bishop = builder->create(ChessPieceColor::White);
 
         if (bishop->getName() != ChessPieceName::Bishop)
         {
@@ -119,7 +119,7 @@ namespace test
         bool testPassed = true;
         builder = std::make_unique<RookBuilder>();
 
-        const auto rook = builder->create();
+        const auto rook = builder->create(ChessPieceColor::White);
 
         if (rook->getName() != ChessPieceName::Rook)
         {
@@ -153,7 +153,7 @@ namespace test
         bool testPassed = true;
         builder = std::make_unique<KingBuilder>();
 
-        const auto king = builder->create();
+        const auto king = builder->create(ChessPieceColor::White);
 
         if (king->getName() != ChessPieceName::King)
         {
@@ -187,7 +187,7 @@ namespace test
         bool testPassed = true;
         builder = std::make_unique<QueenBuilder>();
 
-        const auto queen = builder->create();
+        const auto queen = builder->create(ChessPieceColor::White);
 
         if (queen->getName() != ChessPieceName::Queen)
         {

@@ -22,3 +22,9 @@ enum class ChessPieceVision
     AllDirections,
     Square
 };
+
+enum class ChessPieceColor
+{
+    White,
+    Black
+};
