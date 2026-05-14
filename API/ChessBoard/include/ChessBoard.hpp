@@ -9,7 +9,11 @@ class ChessBoard
 {
 private:
     std::vector<std::vector<std::unique_ptr<ChessPiece>>> m_board;
+    std::pair<int, int> m_blackKingCurrentPosition = {-1, -1};
+    std::pair<int, int> m_whiteKingCurrentPosition = {-1, -1};
     ChessBoard() = default;
+
+    bool kingExists(ChessPieceColor chessPieceColor);
 
 public:
     static ChessBoard createTraditionalChessBoard();

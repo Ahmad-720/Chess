@@ -17,3 +17,19 @@ std::pair<unsigned, unsigned> getRowAndColumnFromSquare(Square square)
 
     return {columnIndex, rowIndex};
 }
+
+Square getSquareFromRowAndColumn(unsigned rowIndex, unsigned columnIndex)
+{
+    if (rowIndex > 7 || columnIndex > 7)
+        throw std::invalid_argument("invalid position");
+
+    const char column = 'a' + columnIndex;
+    const unsigned row = 8 - rowIndex;
+
+    return {column, row};
+}
+
+bool operator==(const Square &lhs, const Square &rhs)
+{
+    return lhs.first == rhs.first && lhs.second == rhs.second;
+}

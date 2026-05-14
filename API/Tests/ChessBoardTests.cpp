@@ -1,4 +1,5 @@
 #include "../ChessBoard/include/ChessBoard.hpp"
+#include "../ChessBoard/include/ChessBoardUtilities.hpp"
 
 #include "../ChessPiece/include/ChessPiece.hpp"
 
@@ -6,7 +7,7 @@
 
 namespace test
 {
-    bool createEmptyChessBoard()
+    bool createEmptyChessBoardTest()
     {
         const auto chessBoard = ChessBoard::createEmptyChessBoard();
 
@@ -25,7 +26,7 @@ namespace test
         return true;
     }
 
-    bool createTraditionalBoard()
+    bool createTraditionalBoardTest()
     {
         bool testPassed = true;
         const auto chessBoard = ChessBoard::createTraditionalChessBoard();
@@ -131,12 +132,39 @@ namespace test
 
         return testPassed;
     }
+
+    bool getSquareFromRowAndColumnTest()
+    {
+
+        int currentRow = 8;
+        char currentColumn = 'a';
+
+        for (int row = 0; row < 8; ++row)
+        {
+            char currentColumn = 'a';
+            for (int column = 0; column < 8; ++column)
+            {
+                if (getSquareFromRowAndColumn(row, column) != Square{currentColumn, currentRow})
+                {
+                    std::cerr << "ERROR OCCURED: Converting from index to Square gone wrong\n";
+                    return false;
+                }
+                currentColumn += 1;
+            }
+            currentRow -= 1;
+        }
+
+        std::cout << "getSquareFromRowAndColumnTest PASSED\n";
+
+        return true;
+    }
 } // namespace test
 
 int main()
 {
-    bool allPassed = test::createEmptyChessBoard();
-    allPassed = allPassed && test::createTraditionalBoard();
+    bool allPassed = test::createEmptyChessBoardTest();
+    allPassed = allPassed && test::createTraditionalBoardTest();
+    allPassed = allPassed && test::getSquareFromRowAndColumnTest();
 
     if (allPassed)
         std::cout << "All Tests Passed Successfully\n";

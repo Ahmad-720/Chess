@@ -68,8 +68,10 @@ ChessBoard ChessBoard::createTraditionalChessBoard()
     chessPieceBuilder = std::make_unique<KingBuilder>();
 
     chessBoard.m_board.at(0).at(4) = chessPieceBuilder->create(ChessPieceColor::Black);
+    chessBoard.m_blackKingCurrentPosition = {0, 4};
 
     chessBoard.m_board.at(7).at(4) = chessPieceBuilder->create(ChessPieceColor::White);
+    chessBoard.m_whiteKingCurrentPosition = {7, 4};
 
     chessPieceBuilder = std::make_unique<QueenBuilder>();
 
@@ -78,4 +80,12 @@ ChessBoard ChessBoard::createTraditionalChessBoard()
     chessBoard.m_board.at(7).at(3) = chessPieceBuilder->create(ChessPieceColor::White);
 
     return chessBoard;
+}
+
+bool ChessBoard::kingExists(ChessPieceColor chessPieceColor)
+{
+    if (chessPieceColor == ChessPieceColor::White)
+        return m_whiteKingCurrentPosition.first != -1 && m_whiteKingCurrentPosition.second != -1;
+
+    return m_blackKingCurrentPosition.first != -1 && m_blackKingCurrentPosition.second != -1;
 }
