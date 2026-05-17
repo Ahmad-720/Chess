@@ -276,32 +276,60 @@ static bool isSquareAttackedByKnight(const ChessBoard &chessBoard, std::pair<int
     if (!isRowAndColumnIndexesValid(chessBoard, rowAndColumnIndexes))
         return false;
 
-    auto upperLeftSquare = getNextRowAndColumn(getNextRowAndColumn(rowAndColumnIndexes, Direction::UpperLeft), Direction::Forward);
+    auto upperLeftSquare1 = getNextRowAndColumn(getNextRowAndColumn(rowAndColumnIndexes, Direction::UpperLeft), Direction::Forward);
 
-    auto *upperLeftChessPiece = chessBoard.getChessPieceAt(upperLeftSquare);
+    auto *upperLeftChessPiece1 = chessBoard.getChessPieceAt(upperLeftSquare1);
 
-    if (upperLeftChessPiece && upperLeftChessPiece->getColor() == attackingKnightColor && upperLeftChessPiece->getVision() == ChessPieceVision::LShape)
+    if (upperLeftChessPiece1 && upperLeftChessPiece1->getColor() == attackingKnightColor && upperLeftChessPiece1->getVision() == ChessPieceVision::LShape)
         return true;
 
-    auto upperRightSquare = getNextRowAndColumn(getNextRowAndColumn(rowAndColumnIndexes, Direction::UpperRight), Direction::Forward);
+    auto upperRightSquare1 = getNextRowAndColumn(getNextRowAndColumn(rowAndColumnIndexes, Direction::UpperRight), Direction::Forward);
 
-    auto *upperRightChessPiece = chessBoard.getChessPieceAt(upperRightSquare);
+    auto *upperRightChessPiece1 = chessBoard.getChessPieceAt(upperRightSquare1);
 
-    if (upperRightChessPiece && upperRightChessPiece->getColor() == attackingKnightColor && upperRightChessPiece->getVision() == ChessPieceVision::LShape)
+    if (upperRightChessPiece1 && upperRightChessPiece1->getColor() == attackingKnightColor && upperRightChessPiece1->getVision() == ChessPieceVision::LShape)
         return true;
 
-    auto lowerLeftSquare = getNextRowAndColumn(getNextRowAndColumn(rowAndColumnIndexes, Direction::LowerLeft), Direction::Backward);
+    auto lowerLeftSquare1 = getNextRowAndColumn(getNextRowAndColumn(rowAndColumnIndexes, Direction::LowerLeft), Direction::Backward);
 
-    auto *lowerLeftChessPiece = chessBoard.getChessPieceAt(lowerLeftSquare);
+    auto *lowerLeftChessPiece1 = chessBoard.getChessPieceAt(lowerLeftSquare1);
 
-    if (lowerLeftChessPiece && lowerLeftChessPiece->getColor() == attackingKnightColor && lowerLeftChessPiece->getVision() == ChessPieceVision::LShape)
+    if (lowerLeftChessPiece1 && lowerLeftChessPiece1->getColor() == attackingKnightColor && lowerLeftChessPiece1->getVision() == ChessPieceVision::LShape)
         return true;
 
-    auto lowerRightSquare = getNextRowAndColumn(getNextRowAndColumn(rowAndColumnIndexes, Direction::LowerRight), Direction::Backward);
+    auto lowerRightSquare1 = getNextRowAndColumn(getNextRowAndColumn(rowAndColumnIndexes, Direction::LowerRight), Direction::Backward);
 
-    auto *lowerRightChessPiece = chessBoard.getChessPieceAt(lowerRightSquare);
+    auto *lowerRightChessPiece1 = chessBoard.getChessPieceAt(lowerRightSquare1);
 
-    if (lowerRightChessPiece && lowerRightChessPiece->getColor() == attackingKnightColor && lowerRightChessPiece->getVision() == ChessPieceVision::LShape)
+    if (lowerRightChessPiece1 && lowerRightChessPiece1->getColor() == attackingKnightColor && lowerRightChessPiece1->getVision() == ChessPieceVision::LShape)
+        return true;
+
+    auto upperLeftSquare2 = getNextRowAndColumn(getNextRowAndColumn(rowAndColumnIndexes, Direction::UpperLeft), Direction::Left);
+
+    auto *upperLeftChessPiece2 = chessBoard.getChessPieceAt(upperLeftSquare2);
+
+    if (upperLeftChessPiece2 && upperLeftChessPiece2->getColor() == attackingKnightColor && upperLeftChessPiece2->getVision() == ChessPieceVision::LShape)
+        return true;
+
+    auto upperRightSquare2 = getNextRowAndColumn(getNextRowAndColumn(rowAndColumnIndexes, Direction::UpperRight), Direction::Right);
+
+    auto *upperRightChessPiece2 = chessBoard.getChessPieceAt(upperRightSquare2);
+
+    if (upperRightChessPiece2 && upperRightChessPiece2->getColor() == attackingKnightColor && upperRightChessPiece2->getVision() == ChessPieceVision::LShape)
+        return true;
+
+    auto lowerLeftSquare2 = getNextRowAndColumn(getNextRowAndColumn(rowAndColumnIndexes, Direction::LowerLeft), Direction::Left);
+
+    auto *lowerLeftChessPiece2 = chessBoard.getChessPieceAt(lowerLeftSquare2);
+
+    if (lowerLeftChessPiece2 && lowerLeftChessPiece2->getColor() == attackingKnightColor && lowerLeftChessPiece2->getVision() == ChessPieceVision::LShape)
+        return true;
+
+    auto lowerRightSquare2 = getNextRowAndColumn(getNextRowAndColumn(rowAndColumnIndexes, Direction::LowerRight), Direction::Right);
+
+    auto *lowerRightChessPiece2 = chessBoard.getChessPieceAt(lowerRightSquare2);
+
+    if (lowerRightChessPiece2 && lowerRightChessPiece2->getColor() == attackingKnightColor && lowerRightChessPiece2->getVision() == ChessPieceVision::LShape)
         return true;
 
     return false;
