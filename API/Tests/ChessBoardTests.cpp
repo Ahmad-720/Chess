@@ -2,6 +2,12 @@
 #include "../ChessBoard/include/ChessBoardUtilities.hpp"
 
 #include "../ChessPiece/include/ChessPiece.hpp"
+#include "../ChessPiece/include/KingBuilder.hpp"
+#include "../ChessPiece/include/QueenBuilder.hpp"
+#include "../ChessPiece/include/PawnBuilder.hpp"
+#include "../ChessPiece/include/BishopBuilder.hpp"
+#include "../ChessPiece/include/KnightBuilder.hpp"
+#include "../ChessPiece/include/RookBuilder.hpp"
 
 #include <iostream>
 
@@ -158,6 +164,66 @@ namespace test
 
         return true;
     }
+
+    bool isKingInCheckTest()
+    {
+        const std::string failureMessage = "isKingInCheckTest FAILED\n";
+        ChessBoard chessBoard = ChessBoard::createEmptyChessBoard();
+        std::unique_ptr<ChessPieceBuilder> builder = std::make_unique<KingBuilder>();
+
+        if (!chessBoard.insertChessPieceAt({7, 0}, *builder, ChessPieceColor::White))
+        {
+            std::cerr << "could not insert Chess Piece\n";
+            std::cerr << failureMessage;
+            return false;
+        }
+
+        builder = std::make_unique<QueenBuilder>();
+
+        if (!chessBoard.insertChessPieceAt({0, 0}, *builder, ChessPieceColor::White))
+        {
+            std::cerr << "could not insert Chess Piece\n";
+            std::cerr << failureMessage;
+            return false;
+        }
+
+        if (chessBoard.isKingInCheck(ChessPieceColor::White))
+        {
+            std::cerr << "The White King Should not be in Check\n";
+            std::cerr << failureMessage;
+            return false;
+        }
+
+        chessBoard = ChessBoard::createEmptyChessBoard();
+        builder = std::make_unique<KingBuilder>();
+
+        if (!chessBoard.insertChessPieceAt({7, 0}, *builder, ChessPieceColor::White))
+        {
+            std::cerr << "could not insert Chess Piece\n";
+            std::cerr << failureMessage;
+            return false;
+        }
+
+        builder = std::make_unique<QueenBuilder>();
+
+        if (!chessBoard.insertChessPieceAt({0, 7}, *builder, ChessPieceColor::Black))
+        {
+            std::cerr << "could not insert Chess Piece\n";
+            std::cerr << failureMessage;
+            return false;
+        }
+
+        if (!chessBoard.isKingInCheck(ChessPieceColor::White))
+        {
+            std::cerr << "The White King Should be in Check\n";
+            std::cerr << failureMessage;
+            return false;
+        }
+
+        std::cout << "isKingInCheckTest PASSED\n";
+
+        return true;
+    }
 } // namespace test
 
 int main()
@@ -165,6 +231,7 @@ int main()
     bool allPassed = test::createEmptyChessBoardTest();
     allPassed = allPassed && test::createTraditionalBoardTest();
     allPassed = allPassed && test::getSquareFromRowAndColumnTest();
+    allPassed = allPassed && test::isKingInCheckTest();
 
     if (allPassed)
         std::cout << "All Tests Passed Successfully\n";

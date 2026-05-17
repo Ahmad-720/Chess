@@ -2,7 +2,7 @@
 
 #include "../include/ChessPiece.hpp"
 
-std::unique_ptr<ChessPiece> PawnBuilder::create(ChessPieceColor color)
+std::unique_ptr<ChessPiece> PawnBuilder::create(ChessPieceColor color) const
 {
     auto chessPiece = std::make_unique<ChessPiece>();
     setChessPieceName(*chessPiece, ChessPieceName::Pawn);

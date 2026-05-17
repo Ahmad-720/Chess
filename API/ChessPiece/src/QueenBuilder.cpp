@@ -1,6 +1,6 @@
 #include "../include/QueenBuilder.hpp"
 
-std::unique_ptr<ChessPiece> QueenBuilder::create(ChessPieceColor color)
+std::unique_ptr<ChessPiece> QueenBuilder::create(ChessPieceColor color) const
 {
     auto chessPiece = std::make_unique<ChessPiece>();
 

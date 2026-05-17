@@ -21,3 +21,8 @@ public:
 
     friend class ChessPieceBuilder;
 };
+
+inline ChessPieceColor operator!(ChessPieceColor chessPieceColor)
+{
+    return chessPieceColor == ChessPieceColor::Black ? ChessPieceColor::White : ChessPieceColor::Black;
+}

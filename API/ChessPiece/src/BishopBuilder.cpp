@@ -1,6 +1,6 @@
 #include "../include/BishopBuilder.hpp"
 
-std::unique_ptr<ChessPiece> BishopBuilder::create(ChessPieceColor color)
+std::unique_ptr<ChessPiece> BishopBuilder::create(ChessPieceColor color) const
 {
     auto chessPiece = std::make_unique<ChessPiece>();
 

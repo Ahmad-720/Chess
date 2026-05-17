@@ -1,6 +1,6 @@
 #include "../include/KingBuilder.hpp"
 
-std::unique_ptr<ChessPiece> KingBuilder::create(ChessPieceColor color)
+std::unique_ptr<ChessPiece> KingBuilder::create(ChessPieceColor color) const
 {
     auto chessPiece = std::make_unique<ChessPiece>();
 
