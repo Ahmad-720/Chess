@@ -168,108 +168,117 @@ namespace test
     bool isKingInCheckTest()
     {
         const std::string failureMessage = "isKingInCheckTest FAILED\n";
-        ChessBoard chessBoard = ChessBoard::createEmptyChessBoard();
-        std::unique_ptr<ChessPieceBuilder> builder = std::make_unique<KingBuilder>();
-
-        if (!chessBoard.insertChessPieceAt({7, 0}, *builder, ChessPieceColor::White))
         {
-            std::cerr << "could not insert Chess Piece\n";
-            std::cerr << failureMessage;
-            return false;
+
+            ChessBoard chessBoard = ChessBoard::createEmptyChessBoard();
+            std::unique_ptr<ChessPieceBuilder> builder = std::make_unique<KingBuilder>();
+
+            if (!chessBoard.insertChessPieceAt({7, 0}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n";
+                std::cerr << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<QueenBuilder>();
+
+            if (!chessBoard.insertChessPieceAt({0, 0}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n";
+                std::cerr << failureMessage;
+                return false;
+            }
+
+            if (chessBoard.isKingInCheck(ChessPieceColor::White))
+            {
+                std::cerr << "The White King Should not be in Check\n";
+                std::cerr << failureMessage;
+                return false;
+            }
         }
 
-        builder = std::make_unique<QueenBuilder>();
-
-        if (!chessBoard.insertChessPieceAt({0, 0}, *builder, ChessPieceColor::White))
         {
-            std::cerr << "could not insert Chess Piece\n";
-            std::cerr << failureMessage;
-            return false;
+            ChessBoard chessBoard = ChessBoard::createEmptyChessBoard();
+            std::unique_ptr<ChessPieceBuilder> builder = std::make_unique<KingBuilder>();
+
+            if (!chessBoard.insertChessPieceAt({7, 0}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n";
+                std::cerr << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<QueenBuilder>();
+
+            if (!chessBoard.insertChessPieceAt({0, 7}, *builder, ChessPieceColor::Black))
+            {
+                std::cerr << "could not insert Chess Piece\n";
+                std::cerr << failureMessage;
+                return false;
+            }
+
+            if (!chessBoard.isKingInCheck(ChessPieceColor::White))
+            {
+                std::cerr << "The White King Should be in Check\n";
+                std::cerr << failureMessage;
+                return false;
+            }
         }
 
-        if (chessBoard.isKingInCheck(ChessPieceColor::White))
         {
-            std::cerr << "The White King Should not be in Check\n";
-            std::cerr << failureMessage;
-            return false;
+            ChessBoard chessBoard = ChessBoard::createEmptyChessBoard();
+            std::unique_ptr<ChessPieceBuilder> builder = std::make_unique<KingBuilder>();
+
+            if (!chessBoard.insertChessPieceAt({7, 0}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n";
+                std::cerr << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<KnightBuilder>();
+
+            if (!chessBoard.insertChessPieceAt({6, 2}, *builder, ChessPieceColor::Black))
+            {
+                std::cerr << "could not insert Chess Piece\n";
+                std::cerr << failureMessage;
+                return false;
+            }
+
+            if (!chessBoard.isKingInCheck(ChessPieceColor::White))
+            {
+                std::cerr << "The White King Should be in Check\n";
+                std::cerr << failureMessage;
+                return false;
+            }
         }
 
-        chessBoard = ChessBoard::createEmptyChessBoard();
-        builder = std::make_unique<KingBuilder>();
-
-        if (!chessBoard.insertChessPieceAt({7, 0}, *builder, ChessPieceColor::White))
         {
-            std::cerr << "could not insert Chess Piece\n";
-            std::cerr << failureMessage;
-            return false;
-        }
+            ChessBoard chessBoard = ChessBoard::createEmptyChessBoard();
+            std::unique_ptr<ChessPieceBuilder> builder = std::make_unique<KingBuilder>();
 
-        builder = std::make_unique<QueenBuilder>();
+            if (!chessBoard.insertChessPieceAt({7, 0}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n";
+                std::cerr << failureMessage;
+                return false;
+            }
 
-        if (!chessBoard.insertChessPieceAt({0, 7}, *builder, ChessPieceColor::Black))
-        {
-            std::cerr << "could not insert Chess Piece\n";
-            std::cerr << failureMessage;
-            return false;
-        }
+            builder = std::make_unique<KnightBuilder>();
 
-        if (!chessBoard.isKingInCheck(ChessPieceColor::White))
-        {
-            std::cerr << "The White King Should be in Check\n";
-            std::cerr << failureMessage;
-            return false;
-        }
+            if (!chessBoard.insertChessPieceAt({5, 1}, *builder, ChessPieceColor::Black))
+            {
+                std::cerr << "could not insert Chess Piece\n";
+                std::cerr << failureMessage;
+                return false;
+            }
 
-        chessBoard = ChessBoard::createEmptyChessBoard();
-        builder = std::make_unique<KingBuilder>();
-
-        if (!chessBoard.insertChessPieceAt({7, 0}, *builder, ChessPieceColor::White))
-        {
-            std::cerr << "could not insert Chess Piece\n";
-            std::cerr << failureMessage;
-            return false;
-        }
-
-        builder = std::make_unique<KnightBuilder>();
-
-        if (!chessBoard.insertChessPieceAt({6, 2}, *builder, ChessPieceColor::Black))
-        {
-            std::cerr << "could not insert Chess Piece\n";
-            std::cerr << failureMessage;
-            return false;
-        }
-
-        if (!chessBoard.isKingInCheck(ChessPieceColor::White))
-        {
-            std::cerr << "The White King Should be in Check\n";
-            std::cerr << failureMessage;
-            return false;
-        }
-
-        chessBoard = ChessBoard::createEmptyChessBoard();
-        builder = std::make_unique<KingBuilder>();
-
-        if (!chessBoard.insertChessPieceAt({7, 0}, *builder, ChessPieceColor::White))
-        {
-            std::cerr << "could not insert Chess Piece\n";
-            std::cerr << failureMessage;
-            return false;
-        }
-
-        builder = std::make_unique<KnightBuilder>();
-
-        if (!chessBoard.insertChessPieceAt({5, 1}, *builder, ChessPieceColor::Black))
-        {
-            std::cerr << "could not insert Chess Piece\n";
-            std::cerr << failureMessage;
-            return false;
-        }
-
-        if (!chessBoard.isKingInCheck(ChessPieceColor::White))
-        {
-            std::cerr << "The White King Should be in Check\n";
-            std::cerr << failureMessage;
-            return false;
+            if (!chessBoard.isKingInCheck(ChessPieceColor::White))
+            {
+                std::cerr << "The White King Should be in Check\n";
+                std::cerr << failureMessage;
+                return false;
+            }
         }
 
         std::cout << "isKingInCheckTest PASSED\n";
