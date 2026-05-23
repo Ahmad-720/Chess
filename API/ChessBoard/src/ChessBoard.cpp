@@ -235,104 +235,150 @@ static ChessPiece *scanInGivenDirectionForChessPiece(const ChessBoard &chessBoar
     return nullptr;
 }
 
-static bool isSquareAttackedByPawn(const ChessBoard &chessBoard, std::pair<int, int> rowAndColumnIndexes, ChessPieceColor attackingPawnColor)
+// in the case of the knight and pawn, this function might add to the vector some invalid squares, so it is mandatory to check if any square of the vector
+// returned by this function valid or not before using it. if and when this behavior is fixed, this comment shall be removed.
+static std::vector<std::pair<int, int>> getVisibleAttackedSquares(const ChessBoard &chessBoard, const std::pair<int, int> &rowAndColumnIndexes, ChessPieceVision chessPieceVision, ChessPieceColor chessPieceColor)
 {
     using Direction = DirectionInWhitePerspective;
+
+    std::vector<std::pair<int, int>> visibleSquares;
+
     if (!isRowAndColumnIndexesValid(chessBoard, rowAndColumnIndexes))
-        return false;
+        return visibleSquares;
 
-    if (attackingPawnColor == ChessPieceColor::Black)
+    const int rowIndex = rowAndColumnIndexes.first;
+    const int columnIndex = rowAndColumnIndexes.second;
+
+    switch (chessPieceVision)
     {
-        auto *upperLeftPiece = chessBoard.getChessPieceAt(getNextRowAndColumn(rowAndColumnIndexes, Direction::UpperLeft));
+    case ChessPieceVision::Front:
+    {
+        visibleSquares.reserve(2);
 
-        if (upperLeftPiece && upperLeftPiece->getColor() == attackingPawnColor && upperLeftPiece->getVision() == ChessPieceVision::Front)
-            return true;
+        if (chessPieceColor == ChessPieceColor::White)
+        {
+            visibleSquares.emplace_back(getNextRowAndColumn(rowAndColumnIndexes, Direction::UpperLeft));
+            visibleSquares.emplace_back(getNextRowAndColumn(rowAndColumnIndexes, Direction::UpperRight));
 
-        auto *upperRightPiece = chessBoard.getChessPieceAt(getNextRowAndColumn(rowAndColumnIndexes, Direction::UpperRight));
+            break;
+        }
 
-        if (upperRightPiece && upperRightPiece->getColor() == attackingPawnColor && upperRightPiece->getVision() == ChessPieceVision::Front)
-            return true;
+        visibleSquares.emplace_back(getNextRowAndColumn(rowAndColumnIndexes, Direction::LowerLeft));
+        visibleSquares.emplace_back(getNextRowAndColumn(rowAndColumnIndexes, Direction::LowerRight));
 
-        return false;
+        break;
     }
 
-    auto *lowerLeftPiece = chessBoard.getChessPieceAt(getNextRowAndColumn(rowAndColumnIndexes, Direction::LowerLeft));
+    case ChessPieceVision::LShape:
+    {
+        visibleSquares.reserve(8);
 
-    if (lowerLeftPiece && lowerLeftPiece->getColor() == attackingPawnColor && lowerLeftPiece->getVision() == ChessPieceVision::Front)
-        return true;
+        visibleSquares.emplace_back(getNextRowAndColumn(getNextRowAndColumn(rowAndColumnIndexes, Direction::UpperLeft), Direction::Forward));
+        visibleSquares.emplace_back(getNextRowAndColumn(getNextRowAndColumn(rowAndColumnIndexes, Direction::UpperLeft), Direction::Left));
 
-    auto *lowerRightPiece = chessBoard.getChessPieceAt(getNextRowAndColumn(rowAndColumnIndexes, Direction::LowerRight));
+        visibleSquares.emplace_back(getNextRowAndColumn(getNextRowAndColumn(rowAndColumnIndexes, Direction::UpperRight), Direction::Forward));
+        visibleSquares.emplace_back(getNextRowAndColumn(getNextRowAndColumn(rowAndColumnIndexes, Direction::UpperRight), Direction::Right));
 
-    if (lowerRightPiece && lowerRightPiece->getColor() == attackingPawnColor && lowerRightPiece->getVision() == ChessPieceVision::Front)
-        return true;
+        visibleSquares.emplace_back(getNextRowAndColumn(getNextRowAndColumn(rowAndColumnIndexes, Direction::LowerLeft), Direction::Backward));
+        visibleSquares.emplace_back(getNextRowAndColumn(getNextRowAndColumn(rowAndColumnIndexes, Direction::LowerLeft), Direction::Left));
 
-    return false;
-}
+        visibleSquares.emplace_back(getNextRowAndColumn(getNextRowAndColumn(rowAndColumnIndexes, Direction::LowerRight), Direction::Backward));
+        visibleSquares.emplace_back(getNextRowAndColumn(getNextRowAndColumn(rowAndColumnIndexes, Direction::LowerRight), Direction::Right));
 
-static bool isSquareAttackedByKnight(const ChessBoard &chessBoard, std::pair<int, int> rowAndColumnIndexes, ChessPieceColor attackingKnightColor)
-{
-    using Direction = DirectionInWhitePerspective;
+        break;
+    }
 
-    if (!isRowAndColumnIndexesValid(chessBoard, rowAndColumnIndexes))
-        return false;
+    case ChessPieceVision::Diagonal:
+    {
+        visibleSquares.reserve(13);
+        Direction direction = Direction::UpperRight;
+        bool scannedAllDirections = false;
 
-    auto upperLeftSquare1 = getNextRowAndColumn(getNextRowAndColumn(rowAndColumnIndexes, Direction::UpperLeft), Direction::Forward);
+        while (!scannedAllDirections)
+        {
+            if (direction == Direction::UpperLeft)
+                scannedAllDirections = true;
 
-    auto *upperLeftChessPiece1 = chessBoard.getChessPieceAt(upperLeftSquare1);
+            auto nextRowAndColumnIndexes = getNextRowAndColumn(rowAndColumnIndexes, direction);
 
-    if (upperLeftChessPiece1 && upperLeftChessPiece1->getColor() == attackingKnightColor && upperLeftChessPiece1->getVision() == ChessPieceVision::LShape)
-        return true;
+            while (isRowAndColumnIndexesValid(chessBoard, nextRowAndColumnIndexes))
+            {
+                visibleSquares.emplace_back(nextRowAndColumnIndexes);
 
-    auto upperRightSquare1 = getNextRowAndColumn(getNextRowAndColumn(rowAndColumnIndexes, Direction::UpperRight), Direction::Forward);
+                if (chessBoard.getChessPieceAt(nextRowAndColumnIndexes))
+                    break;
 
-    auto *upperRightChessPiece1 = chessBoard.getChessPieceAt(upperRightSquare1);
+                nextRowAndColumnIndexes = getNextRowAndColumn(nextRowAndColumnIndexes, direction);
+            }
 
-    if (upperRightChessPiece1 && upperRightChessPiece1->getColor() == attackingKnightColor && upperRightChessPiece1->getVision() == ChessPieceVision::LShape)
-        return true;
+            ++direction;
+            ++direction;
+        }
 
-    auto lowerLeftSquare1 = getNextRowAndColumn(getNextRowAndColumn(rowAndColumnIndexes, Direction::LowerLeft), Direction::Backward);
+        break;
+    }
 
-    auto *lowerLeftChessPiece1 = chessBoard.getChessPieceAt(lowerLeftSquare1);
+    case ChessPieceVision::Straight:
+    {
+        visibleSquares.reserve(14);
+        Direction direction = Direction::Forward;
+        bool scannedAllDirections = false;
 
-    if (lowerLeftChessPiece1 && lowerLeftChessPiece1->getColor() == attackingKnightColor && lowerLeftChessPiece1->getVision() == ChessPieceVision::LShape)
-        return true;
+        while (!scannedAllDirections)
+        {
+            if (direction == Direction::Left)
+                scannedAllDirections = true;
 
-    auto lowerRightSquare1 = getNextRowAndColumn(getNextRowAndColumn(rowAndColumnIndexes, Direction::LowerRight), Direction::Backward);
+            auto nextRowAndColumnIndexes = getNextRowAndColumn(rowAndColumnIndexes, direction);
 
-    auto *lowerRightChessPiece1 = chessBoard.getChessPieceAt(lowerRightSquare1);
+            while (isRowAndColumnIndexesValid(chessBoard, nextRowAndColumnIndexes))
+            {
+                visibleSquares.emplace_back(nextRowAndColumnIndexes);
 
-    if (lowerRightChessPiece1 && lowerRightChessPiece1->getColor() == attackingKnightColor && lowerRightChessPiece1->getVision() == ChessPieceVision::LShape)
-        return true;
+                if (chessBoard.getChessPieceAt(nextRowAndColumnIndexes))
+                    break;
 
-    auto upperLeftSquare2 = getNextRowAndColumn(getNextRowAndColumn(rowAndColumnIndexes, Direction::UpperLeft), Direction::Left);
+                nextRowAndColumnIndexes = getNextRowAndColumn(nextRowAndColumnIndexes, direction);
+            }
 
-    auto *upperLeftChessPiece2 = chessBoard.getChessPieceAt(upperLeftSquare2);
+            ++direction;
+            ++direction;
+        }
 
-    if (upperLeftChessPiece2 && upperLeftChessPiece2->getColor() == attackingKnightColor && upperLeftChessPiece2->getVision() == ChessPieceVision::LShape)
-        return true;
+        break;
+    }
 
-    auto upperRightSquare2 = getNextRowAndColumn(getNextRowAndColumn(rowAndColumnIndexes, Direction::UpperRight), Direction::Right);
+    case ChessPieceVision::AllDirections:
+    {
+        visibleSquares.reserve(24);
+        Direction direction = Direction::Forward;
+        bool scannedAllDirections = false;
 
-    auto *upperRightChessPiece2 = chessBoard.getChessPieceAt(upperRightSquare2);
+        while (!scannedAllDirections)
+        {
+            if (direction == Direction::UpperLeft)
+                scannedAllDirections = true;
 
-    if (upperRightChessPiece2 && upperRightChessPiece2->getColor() == attackingKnightColor && upperRightChessPiece2->getVision() == ChessPieceVision::LShape)
-        return true;
+            auto nextRowAndColumnIndexes = getNextRowAndColumn(rowAndColumnIndexes, direction);
 
-    auto lowerLeftSquare2 = getNextRowAndColumn(getNextRowAndColumn(rowAndColumnIndexes, Direction::LowerLeft), Direction::Left);
+            while (isRowAndColumnIndexesValid(chessBoard, nextRowAndColumnIndexes))
+            {
+                visibleSquares.emplace_back(nextRowAndColumnIndexes);
 
-    auto *lowerLeftChessPiece2 = chessBoard.getChessPieceAt(lowerLeftSquare2);
+                if (chessBoard.getChessPieceAt(nextRowAndColumnIndexes))
+                    break;
 
-    if (lowerLeftChessPiece2 && lowerLeftChessPiece2->getColor() == attackingKnightColor && lowerLeftChessPiece2->getVision() == ChessPieceVision::LShape)
-        return true;
+                nextRowAndColumnIndexes = getNextRowAndColumn(nextRowAndColumnIndexes, direction);
+            }
 
-    auto lowerRightSquare2 = getNextRowAndColumn(getNextRowAndColumn(rowAndColumnIndexes, Direction::LowerRight), Direction::Right);
+            ++direction;
+        }
 
-    auto *lowerRightChessPiece2 = chessBoard.getChessPieceAt(lowerRightSquare2);
+        break;
+    }
+    }
 
-    if (lowerRightChessPiece2 && lowerRightChessPiece2->getColor() == attackingKnightColor && lowerRightChessPiece2->getVision() == ChessPieceVision::LShape)
-        return true;
-
-    return false;
+    return visibleSquares;
 }
 
 bool ChessBoard::isKingInCheck(ChessPieceColor chessPieceColor) const
@@ -341,8 +387,8 @@ bool ChessBoard::isKingInCheck(ChessPieceColor chessPieceColor) const
     if (!isKingExists(chessPieceColor))
         return false;
 
-    auto kingRowAndColumnIndex = chessPieceColor == ChessPieceColor::White ? m_whiteKingCurrentPosition : m_blackKingCurrentPosition;
-    const auto *king = m_board[kingRowAndColumnIndex.first][kingRowAndColumnIndex.second].get();
+    const auto kingRowAndColumnIndexes = chessPieceColor == ChessPieceColor::White ? m_whiteKingCurrentPosition : m_blackKingCurrentPosition;
+    const auto *king = m_board[kingRowAndColumnIndexes.first][kingRowAndColumnIndexes.second].get();
 
     Direction direction = Direction::Forward;
 
@@ -351,7 +397,7 @@ bool ChessBoard::isKingInCheck(ChessPieceColor chessPieceColor) const
         if (direction == Direction::UpperLeft)
             scannedAllDirections = true;
 
-        const auto *chessPiece = scanInGivenDirectionForChessPiece(*this, kingRowAndColumnIndex, direction);
+        const auto *chessPiece = scanInGivenDirectionForChessPiece(*this, kingRowAndColumnIndexes, direction);
 
         if (!chessPiece)
             continue;
@@ -362,11 +408,29 @@ bool ChessBoard::isKingInCheck(ChessPieceColor chessPieceColor) const
             return true;
     }
 
-    if (isSquareAttackedByPawn(*this, kingRowAndColumnIndex, !king->getColor()))
-        return true;
+    // in order to check if the king is attacked by a pawn or a knight, what I decided to do is for the king to mimic the vision of these pieces,
+    // so a king will have the vision of the pawn with same color, and of the knight, will get the visible squares, and then check if there is an attacking
+    // piece these squares that has the corresponding vision
 
-    if (isSquareAttackedByKnight(*this, kingRowAndColumnIndex, !king->getColor()))
-        return true;
+    auto squares = getVisibleAttackedSquares(*this, kingRowAndColumnIndexes, ChessPieceVision::Front, king->getColor());
+
+    for (const auto &square : squares)
+    {
+        const auto *chessPiece = this->getChessPieceAt(square);
+
+        if (chessPiece && chessPiece->getVision() == ChessPieceVision::Front && chessPiece->getColor() != king->getColor())
+            return true;
+    }
+
+    squares = getVisibleAttackedSquares(*this, kingRowAndColumnIndexes, ChessPieceVision::LShape, king->getColor());
+
+    for (const auto &square : squares)
+    {
+        const auto *chessPiece = this->getChessPieceAt(square);
+
+        if (chessPiece && chessPiece->getVision() == ChessPieceVision::LShape && chessPiece->getColor() != king->getColor())
+            return true;
+    }
 
     return false;
 }
