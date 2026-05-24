@@ -8,20 +8,10 @@
 #include "../../ChessPiece/include/KingBuilder.hpp"
 #include "../../ChessPiece/include/QueenBuilder.hpp"
 
+#include <cmath>
+
 namespace
 {
-    enum class DirectionInWhitePerspective
-    {
-        Forward,
-        UpperRight,
-        Right,
-        LowerRight,
-        Backward,
-        LowerLeft,
-        Left,
-        UpperLeft
-    };
-
     DirectionInWhitePerspective &operator++(DirectionInWhitePerspective &direction)
     {
         if (direction == DirectionInWhitePerspective::UpperLeft)
@@ -139,7 +129,7 @@ bool ChessBoard::isKingExists(ChessPieceColor chessPieceColor) const
     return m_blackKingCurrentPosition.first != -1 && m_blackKingCurrentPosition.second != -1;
 }
 
-static bool isRowAndColumnIndexesValid(const ChessBoard &chessBoard, std::pair<int, int> rowIndexColumnIndexPair)
+static bool isRowAndColumnIndexesValid(const ChessBoard &chessBoard, const std::pair<int, int> &rowIndexColumnIndexPair)
 {
     const auto rowIndex = rowIndexColumnIndexPair.first;
     const auto columnIndex = rowIndexColumnIndexPair.second;
@@ -430,6 +420,191 @@ bool ChessBoard::isKingInCheck(ChessPieceColor chessPieceColor) const
 
         if (chessPiece && chessPiece->getVision() == ChessPieceVision::LShape && chessPiece->getColor() != king->getColor())
             return true;
+    }
+
+    return false;
+}
+
+static bool areSquaresConnectedOnTheSameRow(const ChessBoard &chessBoard, const std::pair<int, int> &rowAndColumnIndexes1, const std::pair<int, int> &rowAndColumnIndexes2)
+{
+    using Direction = DirectionInWhitePerspective;
+
+    if (!isRowAndColumnIndexesValid(chessBoard, rowAndColumnIndexes1) || !isRowAndColumnIndexesValid(chessBoard, rowAndColumnIndexes2) || rowAndColumnIndexes1 == rowAndColumnIndexes2)
+        return false;
+
+    const auto row1 = rowAndColumnIndexes1.first;
+    const auto row2 = rowAndColumnIndexes2.first;
+
+    const auto column1 = rowAndColumnIndexes1.second;
+    const auto column2 = rowAndColumnIndexes2.second;
+
+    if (row1 != row2)
+        return false;
+
+    Direction direction = column1 < column2 ? Direction::Right : Direction::Left;
+
+    auto nextRowAndColumnIndexes = getNextRowAndColumn(rowAndColumnIndexes1, direction);
+
+    while (isRowAndColumnIndexesValid(chessBoard, nextRowAndColumnIndexes) && nextRowAndColumnIndexes != rowAndColumnIndexes2)
+    {
+        if (chessBoard.getChessPieceAt(nextRowAndColumnIndexes))
+            return false;
+
+        nextRowAndColumnIndexes = getNextRowAndColumn(nextRowAndColumnIndexes, direction);
+    }
+
+    return true;
+}
+
+static bool areSquaresConnectedOnTheSameColumn(const ChessBoard &chessBoard, const std::pair<int, int> &rowAndColumnIndexes1, const std::pair<int, int> &rowAndColumnIndexes2)
+{
+    using Direction = DirectionInWhitePerspective;
+
+    if (!isRowAndColumnIndexesValid(chessBoard, rowAndColumnIndexes1) || !isRowAndColumnIndexesValid(chessBoard, rowAndColumnIndexes2) || rowAndColumnIndexes1 == rowAndColumnIndexes2)
+        return false;
+
+    const auto row1 = rowAndColumnIndexes1.first;
+    const auto row2 = rowAndColumnIndexes2.first;
+
+    const auto column1 = rowAndColumnIndexes1.second;
+    const auto column2 = rowAndColumnIndexes2.second;
+
+    if (column1 != column2)
+        return false;
+
+    Direction direction = row1 < row2 ? Direction::Backward : Direction::Forward;
+
+    auto nextRowAndColumnIndexes = getNextRowAndColumn(rowAndColumnIndexes1, direction);
+
+    while (isRowAndColumnIndexesValid(chessBoard, nextRowAndColumnIndexes) && nextRowAndColumnIndexes != rowAndColumnIndexes2)
+    {
+        if (chessBoard.getChessPieceAt(nextRowAndColumnIndexes))
+            return false;
+
+        nextRowAndColumnIndexes = getNextRowAndColumn(nextRowAndColumnIndexes, direction);
+    }
+
+    return true;
+}
+
+static bool areSquaresConnectedOnTheSameDiagonal(const ChessBoard &chessBoard, const std::pair<int, int> &rowAndColumnIndexes1, const std::pair<int, int> &rowAndColumnIndexes2)
+{
+    using Direction = DirectionInWhitePerspective;
+
+    if (!isRowAndColumnIndexesValid(chessBoard, rowAndColumnIndexes1) || !isRowAndColumnIndexesValid(chessBoard, rowAndColumnIndexes2) || rowAndColumnIndexes1 == rowAndColumnIndexes2)
+        return false;
+
+    const auto row1 = rowAndColumnIndexes1.first;
+    const auto row2 = rowAndColumnIndexes2.first;
+
+    const auto column1 = rowAndColumnIndexes1.second;
+    const auto column2 = rowAndColumnIndexes2.second;
+
+    const auto rowDifference = row1 - row2;
+    const auto columnDifference = column1 - column2;
+
+    if (std::abs(rowDifference) != std::abs(columnDifference))
+        return false;
+
+    Direction direction;
+
+    if (rowDifference > 0 && columnDifference > 0)
+        direction = Direction::UpperLeft;
+
+    if (rowDifference > 0 && columnDifference < 0)
+        direction = Direction::UpperRight;
+
+    if (rowDifference < 0 && columnDifference > 0)
+        direction = Direction::LowerLeft;
+
+    if (rowDifference < 0 && columnDifference < 0)
+        direction = Direction::LowerRight;
+
+    auto nextRowAndColumnIndexes = getNextRowAndColumn(rowAndColumnIndexes1, direction);
+
+    while (isRowAndColumnIndexesValid(chessBoard, nextRowAndColumnIndexes) && nextRowAndColumnIndexes != rowAndColumnIndexes2)
+    {
+        if (chessBoard.getChessPieceAt(nextRowAndColumnIndexes))
+            return false;
+
+        nextRowAndColumnIndexes = getNextRowAndColumn(nextRowAndColumnIndexes, direction);
+    }
+
+    return true;
+}
+
+bool ChessBoard::isChessPieceOnRowAndColumnIndexesPinned(const std::pair<int, int> &rowAndColumnIndexes, DirectionInWhitePerspective *directionPinnedFrom) const
+{
+    using Direction = DirectionInWhitePerspective;
+
+    if (!isRowAndColumnIndexesValid(*this, rowAndColumnIndexes))
+        return false;
+
+    if (rowAndColumnIndexes == m_blackKingCurrentPosition || rowAndColumnIndexes == m_whiteKingCurrentPosition)
+        return false;
+
+    const auto *chessPiece = getChessPieceAt(rowAndColumnIndexes);
+
+    if (!chessPiece)
+        return false;
+
+    const auto relevantKingPosition = chessPiece->getColor() == ChessPieceColor::White ? m_whiteKingCurrentPosition : m_blackKingCurrentPosition;
+
+    const auto chessPieceRow = rowAndColumnIndexes.first;
+    const auto chessPieceColumn = rowAndColumnIndexes.second;
+
+    const auto kingRow = relevantKingPosition.first;
+    const auto kingColumn = relevantKingPosition.second;
+
+    if (areSquaresConnectedOnTheSameRow(*this, rowAndColumnIndexes, relevantKingPosition))
+    {
+        Direction direction = chessPieceColumn > kingColumn ? Direction::Right : Direction::Left;
+
+        const auto *potentialPinningPiece = scanInGivenDirectionForChessPiece(*this, rowAndColumnIndexes, direction);
+
+        if (potentialPinningPiece && potentialPinningPiece->getColor() != chessPiece->getColor() && (potentialPinningPiece->getVision() == ChessPieceVision::AllDirections || potentialPinningPiece->getVision() == ChessPieceVision::Straight))
+        {
+            *directionPinnedFrom = direction;
+            return true;
+        }
+    }
+
+    if (areSquaresConnectedOnTheSameColumn(*this, rowAndColumnIndexes, relevantKingPosition))
+    {
+        Direction direction = chessPieceRow > kingRow ? Direction::Backward : Direction::Forward;
+
+        const auto *potentialPinningPiece = scanInGivenDirectionForChessPiece(*this, rowAndColumnIndexes, direction);
+
+        if (potentialPinningPiece && potentialPinningPiece->getColor() != chessPiece->getColor() && (potentialPinningPiece->getVision() == ChessPieceVision::AllDirections || potentialPinningPiece->getVision() == ChessPieceVision::Straight))
+        {
+            *directionPinnedFrom = direction;
+            return true;
+        }
+    }
+
+    if (areSquaresConnectedOnTheSameDiagonal(*this, rowAndColumnIndexes, relevantKingPosition))
+    {
+        Direction direction;
+
+        if (chessPieceRow < kingRow && chessPieceColumn < kingColumn)
+            direction = Direction::UpperLeft;
+
+        if (chessPieceRow < kingRow && chessPieceColumn > kingColumn)
+            direction = Direction::UpperRight;
+
+        if (chessPieceRow > kingRow && chessPieceColumn < kingColumn)
+            direction = Direction::LowerLeft;
+
+        if (chessPieceRow > kingRow && chessPieceColumn > kingColumn)
+            direction = Direction::LowerRight;
+
+        const auto *potentialPinningPiece = scanInGivenDirectionForChessPiece(*this, rowAndColumnIndexes, direction);
+
+        if (potentialPinningPiece && potentialPinningPiece->getColor() != chessPiece->getColor() && (potentialPinningPiece->getVision() == ChessPieceVision::AllDirections || potentialPinningPiece->getVision() == ChessPieceVision::Diagonal))
+        {
+            *directionPinnedFrom = direction;
+            return true;
+        }
     }
 
     return false;

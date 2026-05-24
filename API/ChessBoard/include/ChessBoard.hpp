@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../ChessPiece/include/fwd.hpp"
+#include "fwd.hpp"
 
 #include <memory>
 #include <vector>
@@ -29,4 +30,5 @@ public:
     const ChessPiece *insertChessPieceAt(std::pair<int, int> rowAndColumnIndexes, const ChessPieceBuilder &chessPieceBuilder, ChessPieceColor chessPieceColor); // added this function for testing, might get depcrecated later
 
     bool isKingInCheck(ChessPieceColor ChessPieceColor) const;
+    bool isChessPieceOnRowAndColumnIndexesPinned(const std::pair<int, int> &rowAndColumnIndexes, DirectionInWhitePerspective *directionPinnedFrom) const;
 };

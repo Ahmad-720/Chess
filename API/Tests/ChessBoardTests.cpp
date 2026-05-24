@@ -985,6 +985,985 @@ namespace test
         std::cout << "isKingInCheckTest PASSED\n";
         return true;
     }
+
+    bool isPiecePinnedTest()
+    {
+        using Direction = DirectionInWhitePerspective;
+
+        const std::string failureMessage = "isPiecePinnedTest FAILED\n";
+
+        // Coordinate system (0-indexed, 0->7 for both rows and cols):
+        //   higher col → Right,   lower col → Left
+        //   lower  row → Forward, higher row → Backward (confirmed: LowerRight test has attacker at higher row)
+
+        // =========================================================
+        // GROUP 1: Valid pins — all 8 directions
+        // =========================================================
+
+        // [1] Pinned from Right by Queen
+        // King {2,2}, Rook {2,3}, Queen {2,7} — attacker col 7 > pinned col 3 → Right
+        {
+            ChessBoard chessBoard = ChessBoard::createEmptyChessBoard();
+            std::unique_ptr<ChessPieceBuilder> builder = std::make_unique<KingBuilder>();
+
+            if (!chessBoard.insertChessPieceAt({2, 2}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<RookBuilder>();
+            if (!chessBoard.insertChessPieceAt({2, 3}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<QueenBuilder>();
+            if (!chessBoard.insertChessPieceAt({2, 7}, *builder, ChessPieceColor::Black))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            Direction directionPinnedFrom;
+            if (chessBoard.isChessPieceOnRowAndColumnIndexesPinned({2, 3}, &directionPinnedFrom) && directionPinnedFrom == Direction::Right)
+                ;
+            else
+            {
+                std::cerr << "[1] White Rook should be pinned to the king by the black Queen from the Right\n"
+                          << failureMessage;
+                return false;
+            }
+        }
+
+        // [2] Pinned from Left by Queen
+        // King {2,5}, Bishop {2,3}, Queen {2,0} — attacker col 0 < pinned col 3 → Left
+        {
+            ChessBoard chessBoard = ChessBoard::createEmptyChessBoard();
+            std::unique_ptr<ChessPieceBuilder> builder = std::make_unique<KingBuilder>();
+
+            if (!chessBoard.insertChessPieceAt({2, 5}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<BishopBuilder>();
+            if (!chessBoard.insertChessPieceAt({2, 3}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<QueenBuilder>();
+            if (!chessBoard.insertChessPieceAt({2, 0}, *builder, ChessPieceColor::Black))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            Direction directionPinnedFrom;
+            if (chessBoard.isChessPieceOnRowAndColumnIndexesPinned({2, 3}, &directionPinnedFrom) && directionPinnedFrom == Direction::Left)
+                ;
+            else
+            {
+                std::cerr << "[2] White Bishop should be pinned to the king by the black Queen from the Left\n"
+                          << failureMessage;
+                return false;
+            }
+        }
+
+        // [3] Pinned from Forward by Rook
+        // King {6,4}, Knight {4,4}, Rook {0,4} — attacker row 0 < pinned row 4 → Forward
+        {
+            ChessBoard chessBoard = ChessBoard::createEmptyChessBoard();
+            std::unique_ptr<ChessPieceBuilder> builder = std::make_unique<KingBuilder>();
+
+            if (!chessBoard.insertChessPieceAt({6, 4}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<KnightBuilder>();
+            if (!chessBoard.insertChessPieceAt({4, 4}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<RookBuilder>();
+            if (!chessBoard.insertChessPieceAt({0, 4}, *builder, ChessPieceColor::Black))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            Direction directionPinnedFrom;
+            if (chessBoard.isChessPieceOnRowAndColumnIndexesPinned({4, 4}, &directionPinnedFrom) && directionPinnedFrom == Direction::Forward)
+                ;
+            else
+            {
+                std::cerr << "[3] White Knight should be pinned to the king by the black Rook from Forward\n"
+                          << failureMessage;
+                return false;
+            }
+        }
+
+        // [4] Pinned from Backward by Rook
+        // King {1,4}, Pawn {4,4}, Rook {6,4} — attacker row 6 > pinned row 4 → Backward
+        {
+            ChessBoard chessBoard = ChessBoard::createEmptyChessBoard();
+            std::unique_ptr<ChessPieceBuilder> builder = std::make_unique<KingBuilder>();
+
+            if (!chessBoard.insertChessPieceAt({1, 4}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<PawnBuilder>();
+            if (!chessBoard.insertChessPieceAt({4, 4}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<RookBuilder>();
+            if (!chessBoard.insertChessPieceAt({6, 4}, *builder, ChessPieceColor::Black))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            Direction directionPinnedFrom;
+            if (chessBoard.isChessPieceOnRowAndColumnIndexesPinned({4, 4}, &directionPinnedFrom) && directionPinnedFrom == Direction::Backward)
+                ;
+            else
+            {
+                std::cerr << "[4] White Pawn should be pinned to the king by the black Rook from Backward\n"
+                          << failureMessage;
+                return false;
+            }
+        }
+
+        // [5] Pinned from LowerRight by Bishop
+        // King {2,2}, Rook {3,3}, Bishop {7,7} — attacker row 7 > pinned row 3 (Lower), col 7 > col 3 (Right) → LowerRight
+        // (original passing test from schema)
+        {
+            ChessBoard chessBoard = ChessBoard::createEmptyChessBoard();
+            std::unique_ptr<ChessPieceBuilder> builder = std::make_unique<KingBuilder>();
+
+            if (!chessBoard.insertChessPieceAt({2, 2}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<RookBuilder>();
+            if (!chessBoard.insertChessPieceAt({3, 3}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<BishopBuilder>();
+            if (!chessBoard.insertChessPieceAt({7, 7}, *builder, ChessPieceColor::Black))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            Direction directionPinnedFrom;
+            if (chessBoard.isChessPieceOnRowAndColumnIndexesPinned({3, 3}, &directionPinnedFrom) && directionPinnedFrom == Direction::LowerRight)
+                ;
+            else
+            {
+                std::cerr << "[5] White Rook should be pinned to the king by the black Bishop from LowerRight\n"
+                          << failureMessage;
+                return false;
+            }
+        }
+
+        // [6] Pinned from UpperLeft by Bishop
+        // King {5,5}, Queen {3,3}, Bishop {1,1} — attacker row 1 < pinned row 3 (Upper), col 1 < col 3 (Left) → UpperLeft
+        {
+            ChessBoard chessBoard = ChessBoard::createEmptyChessBoard();
+            std::unique_ptr<ChessPieceBuilder> builder = std::make_unique<KingBuilder>();
+
+            if (!chessBoard.insertChessPieceAt({5, 5}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<QueenBuilder>();
+            if (!chessBoard.insertChessPieceAt({3, 3}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<BishopBuilder>();
+            if (!chessBoard.insertChessPieceAt({1, 1}, *builder, ChessPieceColor::Black))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            Direction directionPinnedFrom;
+            if (chessBoard.isChessPieceOnRowAndColumnIndexesPinned({3, 3}, &directionPinnedFrom) && directionPinnedFrom == Direction::UpperLeft)
+                ;
+            else
+            {
+                std::cerr << "[6] White Queen should be pinned to the king by the black Bishop from UpperLeft\n"
+                          << failureMessage;
+                return false;
+            }
+        }
+
+        // [7] Pinned from LowerLeft by Queen
+        // King {1,5}, Pawn {3,3}, Queen {5,1} — attacker row 5 > pinned row 3 (Lower), col 1 < col 3 (Left) → LowerLeft
+        {
+            ChessBoard chessBoard = ChessBoard::createEmptyChessBoard();
+            std::unique_ptr<ChessPieceBuilder> builder = std::make_unique<KingBuilder>();
+
+            if (!chessBoard.insertChessPieceAt({1, 5}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<PawnBuilder>();
+            if (!chessBoard.insertChessPieceAt({3, 3}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<QueenBuilder>();
+            if (!chessBoard.insertChessPieceAt({5, 1}, *builder, ChessPieceColor::Black))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            Direction directionPinnedFrom;
+            if (chessBoard.isChessPieceOnRowAndColumnIndexesPinned({3, 3}, &directionPinnedFrom) && directionPinnedFrom == Direction::LowerLeft)
+                ;
+            else
+            {
+                std::cerr << "[7] White Pawn should be pinned to the king by the black Queen from LowerLeft\n"
+                          << failureMessage;
+                return false;
+            }
+        }
+
+        // [8] Pinned from UpperRight by Bishop
+        // King {5,1}, Knight {3,3}, Bishop {1,5} — attacker row 1 < pinned row 3 (Upper), col 5 > col 3 (Right) → UpperRight
+        {
+            ChessBoard chessBoard = ChessBoard::createEmptyChessBoard();
+            std::unique_ptr<ChessPieceBuilder> builder = std::make_unique<KingBuilder>();
+
+            if (!chessBoard.insertChessPieceAt({5, 1}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<KnightBuilder>();
+            if (!chessBoard.insertChessPieceAt({3, 3}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<BishopBuilder>();
+            if (!chessBoard.insertChessPieceAt({1, 5}, *builder, ChessPieceColor::Black))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            Direction directionPinnedFrom;
+            if (chessBoard.isChessPieceOnRowAndColumnIndexesPinned({3, 3}, &directionPinnedFrom) && directionPinnedFrom == Direction::UpperRight)
+                ;
+            else
+            {
+                std::cerr << "[8] White Knight should be pinned to the king by the black Bishop from UpperRight\n"
+                          << failureMessage;
+                return false;
+            }
+        }
+
+        // =========================================================
+        // GROUP 2: Not pinned — piece is not between king and attacker
+        // =========================================================
+
+        // [9] Attacker on the opposite side of the king from the piece
+        // King {3,3}, Rook {3,5}, Queen {3,0} — queen is left of king, rook is right of king
+        {
+            ChessBoard chessBoard = ChessBoard::createEmptyChessBoard();
+            std::unique_ptr<ChessPieceBuilder> builder = std::make_unique<KingBuilder>();
+
+            if (!chessBoard.insertChessPieceAt({3, 3}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<RookBuilder>();
+            if (!chessBoard.insertChessPieceAt({3, 5}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<QueenBuilder>();
+            if (!chessBoard.insertChessPieceAt({3, 0}, *builder, ChessPieceColor::Black))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            Direction directionPinnedFrom;
+            if (!chessBoard.isChessPieceOnRowAndColumnIndexesPinned({3, 5}, &directionPinnedFrom))
+                ;
+            else
+            {
+                std::cerr << "[9] White Rook should NOT be pinned — attacker is on the opposite side of the king\n"
+                          << failureMessage;
+                return false;
+            }
+        }
+
+        // [10] Two friendly pieces between king and attacker — neither is pinned
+        // King {3,0}, Rook {3,2}, Bishop {3,4}, Queen {3,7}
+        {
+            ChessBoard chessBoard = ChessBoard::createEmptyChessBoard();
+            std::unique_ptr<ChessPieceBuilder> builder = std::make_unique<KingBuilder>();
+
+            if (!chessBoard.insertChessPieceAt({3, 0}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<RookBuilder>();
+            if (!chessBoard.insertChessPieceAt({3, 2}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<BishopBuilder>();
+            if (!chessBoard.insertChessPieceAt({3, 4}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<QueenBuilder>();
+            if (!chessBoard.insertChessPieceAt({3, 7}, *builder, ChessPieceColor::Black))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            Direction directionPinnedFrom;
+            if (!chessBoard.isChessPieceOnRowAndColumnIndexesPinned({3, 2}, &directionPinnedFrom))
+                ;
+            else
+            {
+                std::cerr << "[10] White Rook at (3,2) should NOT be pinned — two pieces between king and attacker\n"
+                          << failureMessage;
+                return false;
+            }
+
+            if (!chessBoard.isChessPieceOnRowAndColumnIndexesPinned({3, 4}, &directionPinnedFrom))
+                ;
+            else
+            {
+                std::cerr << "[10] White Bishop at (3,4) should NOT be pinned — two pieces between king and attacker\n"
+                          << failureMessage;
+                return false;
+            }
+        }
+
+        // =========================================================
+        // GROUP 3: Wrong attacker type — piece cannot pin on that ray
+        // =========================================================
+
+        // [11] Rook on a diagonal — cannot pin diagonally
+        // King {1,1}, Pawn {3,3}, Rook {5,5}
+        {
+            ChessBoard chessBoard = ChessBoard::createEmptyChessBoard();
+            std::unique_ptr<ChessPieceBuilder> builder = std::make_unique<KingBuilder>();
+
+            if (!chessBoard.insertChessPieceAt({1, 1}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<PawnBuilder>();
+            if (!chessBoard.insertChessPieceAt({3, 3}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<RookBuilder>();
+            if (!chessBoard.insertChessPieceAt({5, 5}, *builder, ChessPieceColor::Black))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            Direction directionPinnedFrom;
+            if (!chessBoard.isChessPieceOnRowAndColumnIndexesPinned({3, 3}, &directionPinnedFrom))
+                ;
+            else
+            {
+                std::cerr << "[11] White Pawn should NOT be pinned — black Rook cannot pin along a diagonal\n"
+                          << failureMessage;
+                return false;
+            }
+        }
+
+        // [12] Bishop on a rank — cannot pin horizontally
+        // King {3,1}, Knight {3,4}, Bishop {3,6}
+        {
+            ChessBoard chessBoard = ChessBoard::createEmptyChessBoard();
+            std::unique_ptr<ChessPieceBuilder> builder = std::make_unique<KingBuilder>();
+
+            if (!chessBoard.insertChessPieceAt({3, 1}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<KnightBuilder>();
+            if (!chessBoard.insertChessPieceAt({3, 4}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<BishopBuilder>();
+            if (!chessBoard.insertChessPieceAt({3, 6}, *builder, ChessPieceColor::Black))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            Direction directionPinnedFrom;
+            if (!chessBoard.isChessPieceOnRowAndColumnIndexesPinned({3, 4}, &directionPinnedFrom))
+                ;
+            else
+            {
+                std::cerr << "[12] White Knight should NOT be pinned — black Bishop cannot pin along a rank\n"
+                          << failureMessage;
+                return false;
+            }
+        }
+
+        // [13] Bishop on a file — cannot pin vertically
+        // King {6,3}, Rook {3,3}, Bishop {0,3}
+        {
+            ChessBoard chessBoard = ChessBoard::createEmptyChessBoard();
+            std::unique_ptr<ChessPieceBuilder> builder = std::make_unique<KingBuilder>();
+
+            if (!chessBoard.insertChessPieceAt({6, 3}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<RookBuilder>();
+            if (!chessBoard.insertChessPieceAt({3, 3}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<BishopBuilder>();
+            if (!chessBoard.insertChessPieceAt({0, 3}, *builder, ChessPieceColor::Black))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            Direction directionPinnedFrom;
+            if (!chessBoard.isChessPieceOnRowAndColumnIndexesPinned({3, 3}, &directionPinnedFrom))
+                ;
+            else
+            {
+                std::cerr << "[13] White Rook should NOT be pinned — black Bishop cannot pin along a file\n"
+                          << failureMessage;
+                return false;
+            }
+        }
+
+        // [14] Knight as attacker — Knights cannot pin
+        // King {3,3}, Rook {3,5}, Knight {3,7}
+        {
+            ChessBoard chessBoard = ChessBoard::createEmptyChessBoard();
+            std::unique_ptr<ChessPieceBuilder> builder = std::make_unique<KingBuilder>();
+
+            if (!chessBoard.insertChessPieceAt({3, 3}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<RookBuilder>();
+            if (!chessBoard.insertChessPieceAt({3, 5}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<KnightBuilder>();
+            if (!chessBoard.insertChessPieceAt({3, 7}, *builder, ChessPieceColor::Black))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            Direction directionPinnedFrom;
+            if (!chessBoard.isChessPieceOnRowAndColumnIndexesPinned({3, 5}, &directionPinnedFrom))
+                ;
+            else
+            {
+                std::cerr << "[14] White Rook should NOT be pinned — Knights cannot pin pieces\n"
+                          << failureMessage;
+                return false;
+            }
+        }
+
+        // [15] Pawn as attacker — Pawns cannot pin
+        // King {3,3}, Bishop {3,5}, Pawn {3,7}
+        {
+            ChessBoard chessBoard = ChessBoard::createEmptyChessBoard();
+            std::unique_ptr<ChessPieceBuilder> builder = std::make_unique<KingBuilder>();
+
+            if (!chessBoard.insertChessPieceAt({3, 3}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<BishopBuilder>();
+            if (!chessBoard.insertChessPieceAt({3, 5}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<PawnBuilder>();
+            if (!chessBoard.insertChessPieceAt({3, 7}, *builder, ChessPieceColor::Black))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            Direction directionPinnedFrom;
+            if (!chessBoard.isChessPieceOnRowAndColumnIndexesPinned({3, 5}, &directionPinnedFrom))
+                ;
+            else
+            {
+                std::cerr << "[15] White Bishop should NOT be pinned — Pawns cannot pin pieces\n"
+                          << failureMessage;
+                return false;
+            }
+        }
+
+        // =========================================================
+        // GROUP 4: Pinned to the opposite color king
+        // =========================================================
+
+        // [16] Black piece pinned to black king by white Queen
+        // Black King {6,6}, Black Rook {6,4}, White Queen {6,0} — attacker col 0 < pinned col 4 → Left
+        {
+            ChessBoard chessBoard = ChessBoard::createEmptyChessBoard();
+            std::unique_ptr<ChessPieceBuilder> builder = std::make_unique<KingBuilder>();
+
+            if (!chessBoard.insertChessPieceAt({6, 6}, *builder, ChessPieceColor::Black))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<RookBuilder>();
+            if (!chessBoard.insertChessPieceAt({6, 4}, *builder, ChessPieceColor::Black))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<QueenBuilder>();
+            if (!chessBoard.insertChessPieceAt({6, 0}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            Direction directionPinnedFrom;
+            if (chessBoard.isChessPieceOnRowAndColumnIndexesPinned({6, 4}, &directionPinnedFrom) && directionPinnedFrom == Direction::Left)
+                ;
+            else
+            {
+                std::cerr << "[16] Black Rook should be pinned to the black king by the white Queen from the Left\n"
+                          << failureMessage;
+                return false;
+            }
+        }
+
+        // [17] White piece on ray between black king and black attacker — NOT pinned (own white king is elsewhere)
+        // White King {0,0}, Black King {6,6}, White Rook {6,4}, Black Queen {6,0}
+        {
+            ChessBoard chessBoard = ChessBoard::createEmptyChessBoard();
+            std::unique_ptr<ChessPieceBuilder> builder = std::make_unique<KingBuilder>();
+
+            if (!chessBoard.insertChessPieceAt({0, 0}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<KingBuilder>();
+            if (!chessBoard.insertChessPieceAt({6, 6}, *builder, ChessPieceColor::Black))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<RookBuilder>();
+            if (!chessBoard.insertChessPieceAt({6, 4}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<QueenBuilder>();
+            if (!chessBoard.insertChessPieceAt({6, 0}, *builder, ChessPieceColor::Black))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            Direction directionPinnedFrom;
+            if (!chessBoard.isChessPieceOnRowAndColumnIndexesPinned({6, 4}, &directionPinnedFrom))
+                ;
+            else
+            {
+                std::cerr << "[17] White Rook should NOT be pinned — its own king is not on this ray\n"
+                          << failureMessage;
+                return false;
+            }
+        }
+
+        // =========================================================
+        // GROUP 5: Friendly attacker — cannot create a pin
+        // =========================================================
+
+        // [18] Friendly Queen behind the piece — does not pin
+        // King {3,3}, Bishop {3,5}, White Queen {3,7}
+        {
+            ChessBoard chessBoard = ChessBoard::createEmptyChessBoard();
+            std::unique_ptr<ChessPieceBuilder> builder = std::make_unique<KingBuilder>();
+
+            if (!chessBoard.insertChessPieceAt({3, 3}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<BishopBuilder>();
+            if (!chessBoard.insertChessPieceAt({3, 5}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<QueenBuilder>();
+            if (!chessBoard.insertChessPieceAt({3, 7}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            Direction directionPinnedFrom;
+            if (!chessBoard.isChessPieceOnRowAndColumnIndexesPinned({3, 5}, &directionPinnedFrom))
+                ;
+            else
+            {
+                std::cerr << "[18] White Bishop should NOT be pinned — attacker is a friendly piece\n"
+                          << failureMessage;
+                return false;
+            }
+        }
+
+        // =========================================================
+        // GROUP 6: No attacker present
+        // =========================================================
+
+        // [19] No enemy piece on the ray — not pinned
+        // King {3,3}, Rook {3,5}, nothing beyond
+        {
+            ChessBoard chessBoard = ChessBoard::createEmptyChessBoard();
+            std::unique_ptr<ChessPieceBuilder> builder = std::make_unique<KingBuilder>();
+
+            if (!chessBoard.insertChessPieceAt({3, 3}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<RookBuilder>();
+            if (!chessBoard.insertChessPieceAt({3, 5}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            Direction directionPinnedFrom;
+            if (!chessBoard.isChessPieceOnRowAndColumnIndexesPinned({3, 5}, &directionPinnedFrom))
+                ;
+            else
+            {
+                std::cerr << "[19] White Rook should NOT be pinned — no attacker present\n"
+                          << failureMessage;
+                return false;
+            }
+        }
+
+        // =========================================================
+        // GROUP 7: Edge of board cases
+        // =========================================================
+
+        // [20] Pin along row 0 (top edge)
+        // King {0,0}, Rook {0,3}, Queen {0,7} — attacker col 7 > pinned col 3 → Right
+        {
+            ChessBoard chessBoard = ChessBoard::createEmptyChessBoard();
+            std::unique_ptr<ChessPieceBuilder> builder = std::make_unique<KingBuilder>();
+
+            if (!chessBoard.insertChessPieceAt({0, 0}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<RookBuilder>();
+            if (!chessBoard.insertChessPieceAt({0, 3}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<QueenBuilder>();
+            if (!chessBoard.insertChessPieceAt({0, 7}, *builder, ChessPieceColor::Black))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            Direction directionPinnedFrom;
+            if (chessBoard.isChessPieceOnRowAndColumnIndexesPinned({0, 3}, &directionPinnedFrom) && directionPinnedFrom == Direction::Right)
+                ;
+            else
+            {
+                std::cerr << "[20] White Rook should be pinned along row 0 from the Right\n"
+                          << failureMessage;
+                return false;
+            }
+        }
+
+        // [21] Pin along col 7 (right edge)
+        // King {7,7}, Bishop {4,7}, Queen {0,7} — attacker row 0 < pinned row 4 → Forward
+        {
+            ChessBoard chessBoard = ChessBoard::createEmptyChessBoard();
+            std::unique_ptr<ChessPieceBuilder> builder = std::make_unique<KingBuilder>();
+
+            if (!chessBoard.insertChessPieceAt({7, 7}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<BishopBuilder>();
+            if (!chessBoard.insertChessPieceAt({4, 7}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<QueenBuilder>();
+            if (!chessBoard.insertChessPieceAt({0, 7}, *builder, ChessPieceColor::Black))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            Direction directionPinnedFrom;
+            if (chessBoard.isChessPieceOnRowAndColumnIndexesPinned({4, 7}, &directionPinnedFrom) && directionPinnedFrom == Direction::Forward)
+                ;
+            else
+            {
+                std::cerr << "[21] White Bishop should be pinned along col 7 from Forward\n"
+                          << failureMessage;
+                return false;
+            }
+        }
+
+        // [22] King directly adjacent to pinned piece (no gap between them)
+        // King {3,3}, Rook {3,4}, Queen {3,7} — attacker col 7 > pinned col 4 → Right
+        {
+            ChessBoard chessBoard = ChessBoard::createEmptyChessBoard();
+            std::unique_ptr<ChessPieceBuilder> builder = std::make_unique<KingBuilder>();
+
+            if (!chessBoard.insertChessPieceAt({3, 3}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<RookBuilder>();
+            if (!chessBoard.insertChessPieceAt({3, 4}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<QueenBuilder>();
+            if (!chessBoard.insertChessPieceAt({3, 7}, *builder, ChessPieceColor::Black))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            Direction directionPinnedFrom;
+            if (chessBoard.isChessPieceOnRowAndColumnIndexesPinned({3, 4}, &directionPinnedFrom) && directionPinnedFrom == Direction::Right)
+                ;
+            else
+            {
+                std::cerr << "[22] White Rook adjacent to king should be pinned from the Right\n"
+                          << failureMessage;
+                return false;
+            }
+        }
+
+        // [23] Attacker directly adjacent to pinned piece (no gap between attacker and pinned piece)
+        // King {3,0}, Bishop {3,3}, Queen {3,4} — attacker col 4 > pinned col 3 → Right
+        {
+            ChessBoard chessBoard = ChessBoard::createEmptyChessBoard();
+            std::unique_ptr<ChessPieceBuilder> builder = std::make_unique<KingBuilder>();
+
+            if (!chessBoard.insertChessPieceAt({3, 0}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<BishopBuilder>();
+            if (!chessBoard.insertChessPieceAt({3, 3}, *builder, ChessPieceColor::White))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            builder = std::make_unique<QueenBuilder>();
+            if (!chessBoard.insertChessPieceAt({3, 4}, *builder, ChessPieceColor::Black))
+            {
+                std::cerr << "could not insert Chess Piece\n"
+                          << failureMessage;
+                return false;
+            }
+
+            Direction directionPinnedFrom;
+            if (chessBoard.isChessPieceOnRowAndColumnIndexesPinned({3, 3}, &directionPinnedFrom) && directionPinnedFrom == Direction::Right)
+                ;
+            else
+            {
+                std::cerr << "[23] White Bishop should be pinned when attacker is directly adjacent from the Right\n"
+                          << failureMessage;
+                return false;
+            }
+        }
+
+        return true;
+    }
 } // namespace test
 
 int main()
@@ -993,6 +1972,7 @@ int main()
     allPassed = allPassed && test::createTraditionalBoardTest();
     allPassed = allPassed && test::getSquareFromRowAndColumnTest();
     allPassed = allPassed && test::isKingInCheckTest();
+    allPassed = allPassed && test::isPiecePinnedTest();
 
     if (allPassed)
         std::cout << "All Tests Passed Successfully\n";
